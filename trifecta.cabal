@@ -52,7 +52,6 @@ library
     Text.Trifecta.Diagnostic.Rendering.Fixit
     Text.Trifecta.Diagnostic.Rendering.Span
     Text.Trifecta.Highlight
-    Text.Trifecta.Highlight.Class
     Text.Trifecta.Highlight.Prim
     Text.Trifecta.Highlight.Effects
     Text.Trifecta.Highlight.Rendering.HTML
@@ -72,6 +71,9 @@ library
     Text.Trifecta.Literate.Prim
     Text.Trifecta.Literate.Combinators
     Text.Trifecta.Literate.Monad
+    Text.Trifecta.Marked.Class
+    Text.Trifecta.Marked.Prim
+    Text.Trifecta.Marked.Rope
     Text.Trifecta.Parser
     Text.Trifecta.Parser.ByteString
     Text.Trifecta.Parser.Char
@@ -102,7 +104,7 @@ library
 
   build-depends:
     base                 >= 4       && < 5,
-    array                >= 0.3.0.2 && < 0.4,
+    array                >= 0.3.0.2 && < 0.5,
     containers           >= 0.3     && < 0.5,
     unordered-containers >= 0.1.4   && < 0.2,
     blaze-builder        >= 0.3.0.1 && < 0.4,
@@ -110,7 +112,7 @@ library
     bifunctors           >= 0.1.2   && < 0.2,
     data-lens            >= 2.0.1   && < 2.1,
     data-lens-fd         >= 2.0     && < 2.1,
-    deepseq              >= 1.2.0.1 && < 1.3,
+    deepseq              >= 1.2.0.1 && < 1.4,
     hashable             >= 1.1.2.1 && < 1.2,
     bytestring           >= 0.9.1   && < 0.10,
     mtl                  >= 2.0.1   && < 2.1,

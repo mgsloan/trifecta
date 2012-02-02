@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, TypeFamilies #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Text.Trifecta.Highlight.Rendering.HTML
@@ -20,8 +20,9 @@ import Prelude hiding (head)
 import Text.Blaze
 import Text.Blaze.Html5 hiding (b,i)
 import Text.Blaze.Html5.Attributes hiding (title)
-import Text.Trifecta.Highlight.Class
+import Text.Trifecta.Marked.Class
 import Text.Trifecta.Rope.Highlighted
+import Text.Trifecta.Highlight.Prim
 
 -- | Represents a source file like an HsColour rendered document
 data Doc = Doc 
@@ -32,7 +33,7 @@ data Doc = Doc
 
 -- | 
 --
--- > renderHtml $ toHtml $ addHighlights highlightedRope $ doc "Foo.hs"
+-- > renderHtml $ toHtml $ addMarks highlightedRope $ doc "Foo.hs"
 doc :: String -> Doc
 doc t = Doc t "trifecta.css" mempty
 
@@ -44,5 +45,6 @@ instance ToHtml Doc where
       link ! rel "stylesheet" ! type_ "text/css" ! href (toValue css)
     body $ toHtml cs
 
-instance Highlightable Doc where 
-  addHighlights h (Doc t c r) = Doc t c (addHighlights h r) 
+instance Markable Doc where 
+  type MarkType Doc = Highlight
+  addMarks h (Doc t c r) = Doc t c (addMarks h r) 

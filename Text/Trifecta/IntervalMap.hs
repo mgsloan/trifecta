@@ -2,7 +2,8 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Text.Trifecta.IntervalMap
--- Copyright   :  (c) Edward Kmett 2011
+-- Copyright   :  (c) Michael Sloan 2012
+--                (c) Edward Kmett 2011
 --                (c) Ross Paterson 2008
 -- License     :  BSD-style
 -- Maintainer  :  ekmett@gmail.com
@@ -46,13 +47,15 @@ module Text.Trifecta.IntervalMap
   , fromList
   ) where
 
+import Text.Trifecta.Slice
+
 import Control.Applicative hiding (empty)
 import qualified Data.FingerTree as FT
 import Data.FingerTree (FingerTree, Measured(..), ViewL(..), (<|), (><))
 import Data.Functor.Plus
 
 import Data.Traversable (Traversable(traverse))
-import Data.Foldable (Foldable(foldMap))
+import Data.Foldable (Foldable(foldMap), toList)
 import Data.Bifunctor
 import Data.Semigroup
 import Data.Semigroup.Reducer
@@ -225,6 +228,26 @@ instance Ord v => Alt (IntervalMap v) where
 instance Ord v => Plus (IntervalMap v) where
   zero = empty
 
+{-
+instance BoundedIndex (IntervalMap v a) where
+  type Index (IntervalMap v a) = v
+  minIndex (IntervalMap m) = fst . fst . head . toKeyedList . runIntervalMap
+  -- TODO: more efficient max
+  maxIndex (IntervalMap m) = snd . fst . last . toKeyedList . runIntervalMap
+
+instance Semigroup (IntervalMap v a) where
+  l
+
+instance Reducer (IntervalMap v a) (IntervalMap v a) where
+  unit = id
+
+-- TODO: more efficient slice?
+-- TODO: use Splittable instance
+instance (Splittable a, Num v, Ord v) => Splittable (IntervalMap v a) where
+  type Slice (IntervalMap v a) = IntervalMap v a
+  slice f t = fromList . intersections f t
+-}
+
 -- | /O(n)/. Add a delta to each interval in the map
 offset :: (Ord v, Monoid v) => v -> IntervalMap v a -> IntervalMap v a 
 offset v (IntervalMap m) = IntervalMap $ FT.fmap' (first (mappend v)) m
@@ -270,7 +293,6 @@ greater :: Ord v => v -> IntInterval v -> Bool
 greater k (IntInterval i _) = low i > k
 greater _ _ = False
 
-fromList :: Ord v => [(v, v, a)] -> IntervalMap v a
+fromList :: Ord v => [(Interval v, a)] -> IntervalMap v a
 fromList = foldr ins empty where 
-  ins (lo, hi, n) = insert lo hi n
-
+  ins (Interval lo hi, n) = insert lo hi n

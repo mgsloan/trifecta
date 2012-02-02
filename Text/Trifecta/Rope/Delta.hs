@@ -1,4 +1,4 @@
------------------------------------------------------------------------------
+ -----------------------------------------------------------------------------
 -- |
 -- Module      :  Text.Trifecta.Rope.Delta
 -- Copyright   :  (C) 2011 Edward Kmett
@@ -123,7 +123,7 @@ instance Semigroup Delta where
   Directed p l c t a <> Tab x y b           = Directed p l       (nextTab (c + x) + y)     (t + b ) (a + b)
   Directed p l _ t _ <> Lines m d t' b      = Directed p (l + m) d                         (t + t') b
   Directed _ _ _ t _ <> Directed p l c t' b = Directed p l       c                         (t + t') b
-  
+
 nextTab :: Int64 -> Int64
 nextTab x = x + (8 - mod x 8)
 {-# INLINE nextTab #-}

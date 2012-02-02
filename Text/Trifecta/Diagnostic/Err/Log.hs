@@ -18,6 +18,7 @@ import Data.Semigroup
 import Text.PrettyPrint.Free hiding (empty)
 import Text.Trifecta.Diagnostic.Prim
 import Text.Trifecta.Highlight.Prim
+import Text.Trifecta.Rope.Highlighted
 import Data.Semigroup.Union (union, empty)
 import Data.Sequence (Seq)
 

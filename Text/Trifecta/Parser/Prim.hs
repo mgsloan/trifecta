@@ -45,7 +45,6 @@ import Text.Trifecta.Diagnostic.Err
 import Text.Trifecta.Diagnostic.Err.State
 import Text.Trifecta.Diagnostic.Err.Log
 import Text.Trifecta.Diagnostic.Rendering.Caret
-import Text.Trifecta.Highlight.Class
 import Text.Trifecta.Highlight.Prim
 import Text.Trifecta.Parser.Class
 import Text.Trifecta.Parser.It
@@ -55,6 +54,8 @@ import Text.Trifecta.Parser.Result
 import Text.Trifecta.Rope.Delta as Delta
 import Text.Trifecta.Rope.Prim
 import Text.Trifecta.Rope.Bytes
+import Text.Trifecta.Rope.Highlighted
+import Text.Trifecta.Marked.Class
 import System.Console.Terminfo.PrettyPrint
 
 data Parser r e a = Parser
@@ -286,11 +287,11 @@ stepParser yl y (Parser p) l0 b80 d0 bs0 =
   where
     ju a e l b8 d bs = Pure (JuSt a e l b8 d bs)
     no e l b8 d bs   = Pure (NoSt e l b8 d bs)
-    go r (Pure (JuSt a _ l _ _ _)) = StepDone r (yl . addHighlights (errHighlights l) <$> errLog l) a
-    go r (Pure (NoSt e l b8 d bs)) = StepFail r ((yl . addHighlights (errHighlights l) <$> errLog l) |> y e (errHighlights l) b8 d bs)
+    go r (Pure (JuSt a _ l _ _ _)) = StepDone r (yl . addMarks (errHighlights l) <$> errLog l) a
+    go r (Pure (NoSt e l b8 d bs)) = StepFail r ((yl . addMarks (errHighlights l) <$> errLog l) |> y e (errHighlights l) b8 d bs)
     go r (It ma k) = StepCont r (case ma of
-                                   JuSt a _ l _ _ _  -> Success (yl . addHighlights (errHighlights l) <$> errLog l) a
-                                   NoSt e l b8 d bs  -> Failure ((yl . addHighlights (errHighlights l) <$> errLog l) |> y e (errHighlights l) b8 d bs))
+                                   JuSt a _ l _ _ _  -> Success (yl . addMarks (errHighlights l) <$> errLog l) a
+                                   NoSt e l b8 d bs  -> Failure ((yl . addMarks (errHighlights l) <$> errLog l) |> y e (errHighlights l) b8 d bs))
                                 (go <*> k)
 
 why :: Pretty e => (e -> Doc t) -> ErrState e -> Highlights -> Bool -> Delta -> ByteString -> Diagnostic (Doc t)
@@ -307,15 +308,15 @@ why pp (ErrState ss m) hs _ d bs
     expect xs = text "expected:" <+> fillSep (punctuate (char ',') (Prelude.map text $ ignoreBlanks $ Prelude.map extract xs))
     (now,later) = List.partition (\x -> errLoc m == Just (delta x)) $ toList ss
     clusters = List.groupBy ((==) `on` delta) $ List.sortBy (compare `on` delta) later
-    diagnoseCluster c = Diagnostic (Right $ addHighlights hs $ renderingCaret dc bsc) Note (expect c) [] where
+    diagnoseCluster c = Diagnostic (Right $ addMarks hs $ renderingCaret dc bsc) Note (expect c) [] where
       _ :^ Caret dc bsc = Prelude.head c
     notes = Prelude.map diagnoseCluster clusters
-    rightHere = Right $ addHighlights hs $ renderingCaret d bs
+    rightHere = Right $ addMarks hs $ renderingCaret d bs
 
     explicateWith x EmptyErr          = Diagnostic rightHere Error ((text "unspecified error") <> x)  notes
-    explicateWith x (FailErr r s)     = Diagnostic (Right $ addHighlights hs r) Error ((fillSep $ text <$> words s) <> x) notes
-    explicateWith x (PanicErr r s)    = Diagnostic (Right $ addHighlights hs r) Panic ((fillSep $ text <$> words s) <> x) notes
-    explicateWith x (Err (Diagnostic r l e es)) = Diagnostic (addHighlights hs <$> r) l (pp e <> x) (notes ++ fmap (addHighlights hs . fmap pp) es)
+    explicateWith x (FailErr r s)     = Diagnostic (Right $ addMarks hs r) Error ((fillSep $ text <$> words s) <> x) notes
+    explicateWith x (PanicErr r s)    = Diagnostic (Right $ addMarks hs r) Panic ((fillSep $ text <$> words s) <> x) notes
+    explicateWith x (Err (Diagnostic r l e es)) = Diagnostic (addMarks hs <$> r) l (pp e <> x) (notes ++ fmap (addMarks hs . fmap pp) es)
 
     errLoc EmptyErr = Just d
     errLoc (FailErr r _) = Just $ delta r

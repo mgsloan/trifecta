@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
+{-# LANGUAGE TypeFamilies, TypeSynonymInstances, FlexibleInstances #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -54,8 +54,9 @@ import System.Console.Terminfo.PrettyPrint
 import Text.PrettyPrint.Free hiding (column)
 import Text.Trifecta.Rope.Bytes
 import Text.Trifecta.Rope.Delta
-import Text.Trifecta.Highlight.Class
 import Text.Trifecta.Highlight.Effects
+import Text.Trifecta.Highlight.Prim
+import Text.Trifecta.Marked.Class
 import qualified Data.ByteString.UTF8 as UTF8 
 
 outOfRangeEffects :: [ScopedEffect] -> [ScopedEffect]
@@ -109,11 +110,13 @@ data Rendering = Rendering
   , renderingOverlays :: Delta -> Lines -> Lines
   }
 
-instance Highlightable Rendering where
-  addHighlights intervals (Rendering d ll lb l o) = Rendering d ll lb l' o where
+instance Markable Rendering where
+  type MarkType Rendering = Highlight
+  addMarks intervals (Rendering d ll lb l o) = Rendering d ll lb l' o where
     d' = rewind d
-    l' = Prelude.foldr (.) l [ recolor (eff tok) (column lo <$ guard (near d lo)) (column hi <$ guard (near d hi)) 
-                             | (Interval lo hi, tok) <- intersections d' (d' <> Columns ll lb) intervals ]
+    l' = Prelude.foldr (.) l 
+       [ recolor (eff tok) (column lo <$ guard (near d lo)) (column hi <$ guard (near d hi)) 
+       | (Interval lo hi, tok) <- intersections d' (d' <> Columns ll lb) intervals ]
     eff t _ = highlightEffects t
 
 instance Show Rendering where

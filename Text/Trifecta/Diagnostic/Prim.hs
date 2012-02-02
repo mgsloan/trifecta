@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, DeriveDataTypeable #-}
+{-# LANGUAGE FlexibleContexts, DeriveDataTypeable, TypeFamilies #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Text.Trifecta.Diagnostic.Prim
@@ -26,12 +26,13 @@ import Data.List.NonEmpty hiding (map)
 import Data.Semigroup
 import Data.Semigroup.Foldable
 import Data.Semigroup.Traversable
+import Text.Trifecta.Highlight.Prim
+import Text.Trifecta.Marked.Class
 import Text.Trifecta.Rope.Bytes
 import Text.Trifecta.Rope.Delta
 import Text.Trifecta.Diagnostic.Rendering.Prim
 import Text.Trifecta.Diagnostic.Level
 import Text.PrettyPrint.Free
-import Text.Trifecta.Highlight.Class
 import System.Console.Terminfo.PrettyPrint
 import Prelude hiding (log)
 import Data.Typeable
@@ -39,8 +40,9 @@ import Data.Typeable
 data Diagnostic m = Diagnostic !(Either String Rendering) !DiagnosticLevel m [Diagnostic m]
   deriving (Show, Typeable)
 
-instance Highlightable (Diagnostic e) where
-  addHighlights h (Diagnostic rs l m xs) = Diagnostic (addHighlights h <$> rs) l m (addHighlights h <$> xs)
+instance Markable (Diagnostic e) where
+  type MarkType (Diagnostic e) = Highlight
+  addMarks h (Diagnostic rs l m xs) = Diagnostic (addMarks h <$> rs) l m (addMarks h <$> xs)
 
 instance (Typeable m, Show m) => Exception (Diagnostic m)
 

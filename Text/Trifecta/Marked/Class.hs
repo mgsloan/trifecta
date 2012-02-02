@@ -1,7 +1,8 @@
+{-# LANGUAGE TypeFamilies #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Text.Trifecta.Highlight.Class
--- Copyright   :  (C) 2011 Edward Kmett,
+-- Copyright   :  (C) 2011 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
@@ -9,11 +10,12 @@
 -- Portability :  non-portable
 --
 ----------------------------------------------------------------------------
-module Text.Trifecta.Highlight.Class 
-  ( Highlightable(..)
+module Text.Trifecta.Marked.Class 
+  ( Markable(..)
   ) where
 
-import Text.Trifecta.Highlight.Prim
+import Text.Trifecta.Marked.Prim
 
-class Highlightable a where
-  addHighlights :: Highlights -> a -> a
+class Markable a where
+  type MarkType a
+  addMarks :: Marks (MarkType a) -> a -> a

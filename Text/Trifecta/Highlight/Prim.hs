@@ -11,12 +11,12 @@
 ----------------------------------------------------------------------------
 module Text.Trifecta.Highlight.Prim
   ( Highlight(..)
-  , Highlights
   ) where
 
 import Data.Ix
-import Text.Trifecta.IntervalMap
-import Text.Trifecta.Rope.Delta
+
+import Text.Trifecta.Marked.Prim
+import Text.Trifecta.Marked.Rope
 
 data Highlight
   = EscapeCode
@@ -43,5 +43,3 @@ data Highlight
   | LiterateComment
   | LiterateSyntax
   deriving (Eq,Ord,Show,Read,Enum,Ix,Bounded)
-
-type Highlights = IntervalMap Delta Highlight
